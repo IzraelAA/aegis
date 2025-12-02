@@ -1,7 +1,6 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import create_engine, pool
 
 from alembic import context
 
@@ -18,11 +17,15 @@ from app.models import User, Inspection, Incident, Permit
 # access to the values within the .ini file in use.
 config = context.config
 
+# Get database URL from settings
+database_url = settings.get_database_url()
+
+# Check if using Transaction Pooler (port 6543 or pooler.supabase.com)
+is_transaction_pooler = ":6543" in database_url or "pooler.supabase.com" in database_url
+
 # Override sqlalchemy.url with value from settings
 # Note: We need to escape % characters for ConfigParser interpolation
-# Double the % to escape it (%% becomes %)
-database_url = settings.DATABASE_URL.replace('%', '%%')
-config.set_main_option("sqlalchemy.url", database_url)
+config.set_main_option("sqlalchemy.url", database_url.replace('%', '%%'))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -32,11 +35,6 @@ if config.config_file_name is not None:
 # add your model's MetaData object here
 # for 'autogenerate' support
 target_metadata = Base.metadata
-
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
 
 
 def run_migrations_offline() -> None:
@@ -70,9 +68,10 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
+    # Create engine with NullPool for migrations
+    # Using psycopg3 driver which is more compatible with pgbouncer
+    connectable = create_engine(
+        database_url,
         poolclass=pool.NullPool,
     )
 
