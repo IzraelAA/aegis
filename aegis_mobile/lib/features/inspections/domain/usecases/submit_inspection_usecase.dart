@@ -14,17 +14,18 @@ class SubmitInspectionUseCase
   SubmitInspectionUseCase(this.repository);
 
   @override
-  Future<Either<Failure, InspectionEntity>> call(SubmitInspectionParams params) {
-    return repository.submitInspection(params.inspection);
+  Future<Either<Failure, InspectionEntity>> call(
+      SubmitInspectionParams params) {
+    // Submit inspection by updating its status to 'completed'
+    return repository.updateInspectionStatus(params.inspectionId, 'completed');
   }
 }
 
 class SubmitInspectionParams extends Equatable {
-  final InspectionEntity inspection;
+  final String inspectionId;
 
-  const SubmitInspectionParams({required this.inspection});
+  const SubmitInspectionParams({required this.inspectionId});
 
   @override
-  List<Object?> get props => [inspection];
+  List<Object?> get props => [inspectionId];
 }
-
