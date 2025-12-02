@@ -1,5 +1,6 @@
-package com.peken.peken
+package com.aegis.mobile
 
 import io.flutter.embedding.android.FlutterActivity
 
 class MainActivity: FlutterActivity()
+
