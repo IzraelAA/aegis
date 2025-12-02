@@ -7,26 +7,24 @@ abstract class InspectionRepository {
   /// Get all inspections
   Future<Either<Failure, List<InspectionEntity>>> getInspections();
 
+  /// Get my inspections
+  Future<Either<Failure, List<InspectionEntity>>> getMyInspections();
+
   /// Get inspection by ID
   Future<Either<Failure, InspectionEntity>> getInspectionById(String id);
 
-  /// Get inspection templates/checklists by category
-  Future<Either<Failure, List<InspectionEntity>>> getInspectionTemplates(
-      String category);
+  /// Create a new inspection
+  Future<Either<Failure, InspectionEntity>> createInspection(
+      InspectionEntity inspection);
 
-  /// Start a new inspection from template
-  Future<Either<Failure, InspectionEntity>> startInspection(
-      InspectionEntity template);
-
-  /// Update inspection progress (save checklist items)
+  /// Update inspection
   Future<Either<Failure, InspectionEntity>> updateInspection(
       InspectionEntity inspection);
 
-  /// Submit completed inspection
-  Future<Either<Failure, InspectionEntity>> submitInspection(
-      InspectionEntity inspection);
+  /// Delete inspection
+  Future<Either<Failure, bool>> deleteInspection(String id);
 
-  /// Get inspection categories
-  Future<Either<Failure, List<String>>> getCategories();
+  /// Update inspection status
+  Future<Either<Failure, InspectionEntity>> updateInspectionStatus(
+      String id, String status);
 }
-

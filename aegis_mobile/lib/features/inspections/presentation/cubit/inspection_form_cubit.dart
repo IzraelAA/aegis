@@ -63,15 +63,16 @@ class InspectionFormCubit extends BaseCubit<InspectionEntity> {
 
     emitLoading();
 
-    final updatedInspection = _currentInspection!.copyWith(
+    // First update the inspection with signature and notes
+    _currentInspection = _currentInspection!.copyWith(
       signature: signature,
       notes: notes,
-      status: InspectionStatus.completed,
-      completedAt: DateTime.now(),
     );
+    await _saveProgress();
 
+    // Then submit by updating status to completed
     final result = await submitInspectionUseCase(
-      SubmitInspectionParams(inspection: updatedInspection),
+      SubmitInspectionParams(inspectionId: _currentInspection!.id),
     );
 
     result.fold(

@@ -46,6 +46,16 @@ class InspectionRepositoryImpl implements InspectionRepository {
   }
 
   @override
+  Future<Either<Failure, List<InspectionEntity>>> getMyInspections() async {
+    try {
+      final remote = await remoteDataSource.getMyInspections();
+      return Right(remote.map((m) => m.toEntity()).toList());
+    } catch (e) {
+      return Left(ExceptionHandler.handleException(e));
+    }
+  }
+
+  @override
   Future<Either<Failure, InspectionEntity>> getInspectionById(String id) async {
     try {
       final inspection = await remoteDataSource.getInspectionById(id);
@@ -61,27 +71,16 @@ class InspectionRepositoryImpl implements InspectionRepository {
   }
 
   @override
-  Future<Either<Failure, List<InspectionEntity>>> getInspectionTemplates(
-      String category) async {
+  Future<Either<Failure, InspectionEntity>> createInspection(
+      InspectionEntity inspection) async {
     try {
-      final templates = await remoteDataSource.getInspectionTemplates(category);
-      return Right(templates.map((m) => m.toEntity()).toList());
-    } catch (e) {
-      return Left(ExceptionHandler.handleException(e));
-    }
-  }
-
-  @override
-  Future<Either<Failure, InspectionEntity>> startInspection(
-      InspectionEntity template) async {
-    try {
-      final model = InspectionModel.fromEntity(template);
-      final inspection = await remoteDataSource.startInspection(model);
+      final model = InspectionModel.fromEntity(inspection);
+      final created = await remoteDataSource.createInspection(model);
 
       // Invalidate cache
       await localDataSource.clearInspectionCache();
 
-      return Right(inspection.toEntity());
+      return Right(created.toEntity());
     } catch (e) {
       return Left(ExceptionHandler.handleException(e));
     }
@@ -110,42 +109,32 @@ class InspectionRepositoryImpl implements InspectionRepository {
   }
 
   @override
-  Future<Either<Failure, InspectionEntity>> submitInspection(
-      InspectionEntity inspection) async {
+  Future<Either<Failure, bool>> deleteInspection(String id) async {
     try {
-      final model = InspectionModel.fromEntity(
-        inspection.copyWith(
-          status: InspectionStatus.completed,
-          completedAt: DateTime.now(),
-        ),
-      );
-      final submitted = await remoteDataSource.submitInspection(model);
+      await remoteDataSource.deleteInspection(id);
 
       // Remove from drafts and invalidate cache
-      await localDataSource.deleteDraftInspection(inspection.id);
+      await localDataSource.deleteDraftInspection(id);
       await localDataSource.clearInspectionCache();
 
-      return Right(submitted.toEntity());
+      return const Right(true);
     } catch (e) {
       return Left(ExceptionHandler.handleException(e));
     }
   }
 
   @override
-  Future<Either<Failure, List<String>>> getCategories() async {
+  Future<Either<Failure, InspectionEntity>> updateInspectionStatus(
+      String id, String status) async {
     try {
-      final categories = await remoteDataSource.getCategories();
-      return Right(categories);
+      final updated = await remoteDataSource.updateInspectionStatus(id, status);
+
+      // Invalidate cache
+      await localDataSource.clearInspectionCache();
+
+      return Right(updated.toEntity());
     } catch (e) {
-      // Return default categories on error
-      return const Right([
-        'Safety',
-        'Equipment',
-        'Workplace',
-        'Environmental',
-        'Quality',
-      ]);
+      return Left(ExceptionHandler.handleException(e));
     }
   }
 }
-
