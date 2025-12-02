@@ -19,7 +19,7 @@ class SampleRemoteDataSourceImpl extends BaseRemoteDataSource
   @override
   Future<List<SampleModel>> getSamples() async {
     return safeApiCall(() async {
-      final response = await dio.get(ApiEndpoints.user);
+      final response = await dio.get(ApiEndpoints.users);
       return extractListData<SampleModel>(
         response,
         (json) => SampleModel.fromJson(json),
@@ -30,7 +30,7 @@ class SampleRemoteDataSourceImpl extends BaseRemoteDataSource
   @override
   Future<SampleModel> getSampleById(String id) async {
     return safeApiCall(() async {
-      final response = await dio.get('${ApiEndpoints.user}/$id');
+      final response = await dio.get(ApiEndpoints.user(id));
       return extractData<SampleModel>(
         response,
         (json) => SampleModel.fromJson(json),
@@ -42,7 +42,7 @@ class SampleRemoteDataSourceImpl extends BaseRemoteDataSource
   Future<SampleModel> createSample(SampleModel sample) async {
     return safeApiCall(() async {
       final response = await dio.post(
-        ApiEndpoints.user,
+        ApiEndpoints.users,
         data: sample.toJson(),
       );
       return extractData<SampleModel>(
@@ -56,7 +56,7 @@ class SampleRemoteDataSourceImpl extends BaseRemoteDataSource
   Future<SampleModel> updateSample(SampleModel sample) async {
     return safeApiCall(() async {
       final response = await dio.put(
-        '${ApiEndpoints.user}/${sample.id}',
+        ApiEndpoints.user(sample.id),
         data: sample.toJson(),
       );
       return extractData<SampleModel>(
@@ -69,7 +69,7 @@ class SampleRemoteDataSourceImpl extends BaseRemoteDataSource
   @override
   Future<bool> deleteSample(String id) async {
     return safeApiCall(() async {
-      await dio.delete('${ApiEndpoints.user}/$id');
+      await dio.delete(ApiEndpoints.user(id));
       return true;
     });
   }

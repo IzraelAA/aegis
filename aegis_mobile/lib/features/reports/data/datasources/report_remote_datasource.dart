@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:aegis_mobile/core/data/datasource/base_remote_datasource.dart';
 import 'package:aegis_mobile/core/network/api_endpoints.dart';
@@ -6,11 +5,13 @@ import 'package:aegis_mobile/features/reports/data/models/report_model.dart';
 
 abstract class ReportRemoteDataSource {
   Future<List<ReportModel>> getReports();
+  Future<List<ReportModel>> getMyReports();
   Future<ReportModel> getReportById(String id);
   Future<ReportModel> createReport(ReportModel report);
   Future<ReportModel> updateReport(ReportModel report);
   Future<bool> deleteReport(String id);
-  Future<String> uploadPhoto(String filePath);
+  Future<List<ReportModel>> searchReports(String query);
+  Future<ReportModel> updateInvestigation(String id, Map<String, dynamic> data);
 }
 
 @LazySingleton(as: ReportRemoteDataSource)
@@ -21,7 +22,18 @@ class ReportRemoteDataSourceImpl extends BaseRemoteDataSource
   @override
   Future<List<ReportModel>> getReports() async {
     return safeApiCall(() async {
-      final response = await dio.get(ApiEndpoints.reports);
+      final response = await dio.get(ApiEndpoints.incidents);
+      return extractListData<ReportModel>(
+        response,
+        (json) => ReportModel.fromJson(json),
+      );
+    });
+  }
+
+  @override
+  Future<List<ReportModel>> getMyReports() async {
+    return safeApiCall(() async {
+      final response = await dio.get(ApiEndpoints.myIncidents);
       return extractListData<ReportModel>(
         response,
         (json) => ReportModel.fromJson(json),
@@ -32,7 +44,7 @@ class ReportRemoteDataSourceImpl extends BaseRemoteDataSource
   @override
   Future<ReportModel> getReportById(String id) async {
     return safeApiCall(() async {
-      final response = await dio.get('${ApiEndpoints.reports}/$id');
+      final response = await dio.get(ApiEndpoints.incident(id));
       return extractData<ReportModel>(
         response,
         (json) => ReportModel.fromJson(json),
@@ -44,7 +56,7 @@ class ReportRemoteDataSourceImpl extends BaseRemoteDataSource
   Future<ReportModel> createReport(ReportModel report) async {
     return safeApiCall(() async {
       final response = await dio.post(
-        ApiEndpoints.reports,
+        ApiEndpoints.incidents,
         data: report.toJson(),
       );
       return extractData<ReportModel>(
@@ -58,7 +70,7 @@ class ReportRemoteDataSourceImpl extends BaseRemoteDataSource
   Future<ReportModel> updateReport(ReportModel report) async {
     return safeApiCall(() async {
       final response = await dio.put(
-        '${ApiEndpoints.reports}/${report.id}',
+        ApiEndpoints.incident(report.id),
         data: report.toJson(),
       );
       return extractData<ReportModel>(
@@ -71,24 +83,37 @@ class ReportRemoteDataSourceImpl extends BaseRemoteDataSource
   @override
   Future<bool> deleteReport(String id) async {
     return safeApiCall(() async {
-      await dio.delete('${ApiEndpoints.reports}/$id');
+      await dio.delete(ApiEndpoints.incident(id));
       return true;
     });
   }
 
   @override
-  Future<String> uploadPhoto(String filePath) async {
+  Future<List<ReportModel>> searchReports(String query) async {
     return safeApiCall(() async {
-      final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(filePath),
-      });
-      final response = await dio.post(
-        ApiEndpoints.uploadPhoto,
-        data: formData,
+      final response = await dio.get(
+        ApiEndpoints.searchIncidents,
+        queryParameters: {'q': query},
       );
-      final data = response.data as Map<String, dynamic>;
-      return data['url'] as String? ?? data['data']['url'] as String;
+      return extractListData<ReportModel>(
+        response,
+        (json) => ReportModel.fromJson(json),
+      );
+    });
+  }
+
+  @override
+  Future<ReportModel> updateInvestigation(
+      String id, Map<String, dynamic> data) async {
+    return safeApiCall(() async {
+      final response = await dio.patch(
+        ApiEndpoints.incidentInvestigation(id),
+        data: data,
+      );
+      return extractData<ReportModel>(
+        response,
+        (json) => ReportModel.fromJson(json),
+      );
     });
   }
 }
-

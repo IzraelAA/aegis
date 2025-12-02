@@ -3,40 +3,55 @@ class ApiEndpoints {
   ApiEndpoints._();
 
   // Base URL - Configure based on environment
-  static const String baseUrl = 'https://api.aegis.com/v1';
+  static const String baseUrl = 'https://aegis-production-d7b4.up.railway.app';
 
   // Auth
-  static const String login = '/auth/login';
-  static const String logout = '/auth/logout';
-  static const String refreshToken = '/auth/refresh';
-  static const String me = '/auth/me';
-  static const String register = '/auth/register';
-  static const String forgotPassword = '/auth/forgot-password';
-  static const String resetPassword = '/auth/reset-password';
+  static const String login = '/api/v1/auth/login';
+  static const String register = '/api/v1/auth/register';
+  static const String refreshToken = '/api/v1/auth/refresh';
 
-  // User / Profile
-  static const String user = '/users';
-  static const String profile = '/profile';
-  static const String profileAvatar = '/profile/avatar';
-  static const String changePassword = '/profile/change-password';
-
-  // Reports
-  static const String reports = '/reports';
-  static const String uploadPhoto = '/uploads/photo';
+  // Users / Profile
+  static const String me = '/api/v1/users/me';
+  static const String users = '/api/v1/users';
+  static String user(String userId) => '/api/v1/users/$userId';
+  static String deactivateUser(String userId) =>
+      '/api/v1/users/$userId/deactivate';
+  static String activateUser(String userId) => '/api/v1/users/$userId/activate';
+  static const String searchUsers = '/api/v1/users/search/';
+  static String usersByRole(String role) => '/api/v1/users/role/$role';
 
   // Inspections
-  static const String inspections = '/inspections';
-  static const String inspectionTemplates = '/inspections/templates';
-  static const String inspectionCategories = '/inspections/categories';
+  static const String inspections = '/api/v1/inspections';
+  static const String myInspections = '/api/v1/inspections/my';
+  static String inspectionsByUser(String userId) =>
+      '/api/v1/inspections/user/$userId';
+  static String inspection(String id) => '/api/v1/inspections/$id';
+  static String inspectionStatus(String id) => '/api/v1/inspections/$id/status';
 
-  // Notifications
-  static const String notifications = '/notifications';
-  static const String deviceToken = '/notifications/device-token';
+  // Incidents (Reports)
+  static const String incidents = '/api/v1/incidents';
+  static const String myIncidents = '/api/v1/incidents/my';
+  static const String searchIncidents = '/api/v1/incidents/search';
+  static String incident(String id) => '/api/v1/incidents/$id';
+  static String incidentInvestigation(String id) =>
+      '/api/v1/incidents/$id/investigation';
+
+  // Permits (PTW - Permit to Work)
+  static const String permits = '/api/v1/permits';
+  static const String myPermits = '/api/v1/permits/my';
+  static const String pendingPermits = '/api/v1/permits/pending';
+  static String permit(String id) => '/api/v1/permits/$id';
+  static String approvePermit(String id) => '/api/v1/permits/$id/approve';
+  static String rejectPermit(String id) => '/api/v1/permits/$id/reject';
+
+  // Notifications (placeholder - not in provided API)
+  static const String notifications = '/api/v1/notifications';
+  static const String deviceToken = '/api/v1/notifications/device-token';
 
   // Real-time
   static const String websocket = '/ws';
 
-  // Dashboard / Stats
-  static const String dashboard = '/dashboard';
-  static const String stats = '/stats';
+  // Dashboard / Stats (placeholder - not in provided API)
+  static const String dashboard = '/api/v1/dashboard';
+  static const String stats = '/api/v1/stats';
 }
