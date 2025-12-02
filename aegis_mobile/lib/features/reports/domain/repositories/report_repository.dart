@@ -19,9 +19,6 @@ abstract class ReportRepository {
   /// Delete report by ID
   Future<Either<Failure, bool>> deleteReport(String id);
 
-  /// Upload photo for report
-  Future<Either<Failure, String>> uploadPhoto(String filePath);
-
   /// Get offline queue
   Future<Either<Failure, List<ReportEntity>>> getOfflineQueue();
 
@@ -34,4 +31,3 @@ abstract class ReportRepository {
   /// Sync offline queue with server
   Future<Either<Failure, int>> syncOfflineQueue();
 }
-
