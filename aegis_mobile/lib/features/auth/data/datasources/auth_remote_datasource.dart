@@ -98,9 +98,8 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
 
   @override
   Future<bool> logout() async {
-    return safeApiCall(() async {
-      await dio.post(ApiEndpoints.logout);
-      return true;
-    });
+    // Logout is handled client-side (clear tokens)
+    // No logout endpoint in current API
+    return true;
   }
 }

@@ -22,7 +22,7 @@ class ProfileRemoteDataSourceImpl extends BaseRemoteDataSource
   @override
   Future<ProfileModel> getProfile() async {
     return safeApiCall(() async {
-      final response = await dio.get(ApiEndpoints.profile);
+      final response = await dio.get(ApiEndpoints.me);
       return extractData<ProfileModel>(
         response,
         (json) => ProfileModel.fromJson(json),
@@ -34,7 +34,7 @@ class ProfileRemoteDataSourceImpl extends BaseRemoteDataSource
   Future<ProfileModel> updateProfile(ProfileModel profile) async {
     return safeApiCall(() async {
       final response = await dio.put(
-        ApiEndpoints.profile,
+        ApiEndpoints.me,
         data: profile.toJson(),
       );
       return extractData<ProfileModel>(
@@ -50,14 +50,15 @@ class ProfileRemoteDataSourceImpl extends BaseRemoteDataSource
       final formData = FormData.fromMap({
         'avatar': await MultipartFile.fromFile(filePath),
       });
-      final response = await dio.post(
-        ApiEndpoints.profileAvatar,
+      final response = await dio.put(
+        ApiEndpoints.me,
         data: formData,
       );
       final data = response.data as Map<String, dynamic>;
       return data['avatar'] as String? ??
           data['url'] as String? ??
-          data['data']['avatar'] as String;
+          data['data']?['avatar'] as String? ??
+          '';
     });
   }
 
@@ -67,8 +68,8 @@ class ProfileRemoteDataSourceImpl extends BaseRemoteDataSource
     required String newPassword,
   }) async {
     return safeApiCall(() async {
-      await dio.post(
-        ApiEndpoints.changePassword,
+      await dio.put(
+        ApiEndpoints.me,
         data: {
           'current_password': currentPassword,
           'new_password': newPassword,
@@ -78,4 +79,3 @@ class ProfileRemoteDataSourceImpl extends BaseRemoteDataSource
     });
   }
 }
-
