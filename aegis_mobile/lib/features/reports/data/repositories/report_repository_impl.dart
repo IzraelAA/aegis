@@ -61,7 +61,8 @@ class ReportRepositoryImpl implements ReportRepository {
   }
 
   @override
-  Future<Either<Failure, ReportEntity>> createReport(ReportEntity report) async {
+  Future<Either<Failure, ReportEntity>> createReport(
+      ReportEntity report) async {
     try {
       final model = ReportModel.fromEntity(report);
       final createdReport = await remoteDataSource.createReport(model);
@@ -80,7 +81,8 @@ class ReportRepositoryImpl implements ReportRepository {
   }
 
   @override
-  Future<Either<Failure, ReportEntity>> updateReport(ReportEntity report) async {
+  Future<Either<Failure, ReportEntity>> updateReport(
+      ReportEntity report) async {
     try {
       final model = ReportModel.fromEntity(report);
       final updatedReport = await remoteDataSource.updateReport(model);
@@ -103,16 +105,6 @@ class ReportRepositoryImpl implements ReportRepository {
       await localDataSource.clearReportCache();
 
       return const Right(true);
-    } catch (e) {
-      return Left(ExceptionHandler.handleException(e));
-    }
-  }
-
-  @override
-  Future<Either<Failure, String>> uploadPhoto(String filePath) async {
-    try {
-      final url = await remoteDataSource.uploadPhoto(filePath);
-      return Right(url);
     } catch (e) {
       return Left(ExceptionHandler.handleException(e));
     }
@@ -193,4 +185,3 @@ class ReportRepositoryImpl implements ReportRepository {
     }
   }
 }
-
