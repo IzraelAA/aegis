@@ -31,7 +31,8 @@ class User(Base):
     # Relationships
     inspections = relationship("Inspection", back_populates="user", lazy="dynamic")
     incidents = relationship("Incident", back_populates="user", lazy="dynamic")
-    permits = relationship("Permit", back_populates="user", lazy="dynamic")
+    # Specify foreign_keys to resolve ambiguity (Permit has both user_id and approved_by)
+    permits = relationship("Permit", back_populates="user", foreign_keys="[Permit.user_id]", lazy="dynamic")
 
     def __repr__(self):
         return f"<User {self.username}>"
